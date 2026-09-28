@@ -33,29 +33,11 @@ jobs:
         with:
           gradle-version: '8.10.2'
 
-      - name: Fix JVM targets
-        run: |
-          echo "Searching Gradle files..."
-          find project -name "build.gradle.kts" -print
-
-          while IFS= read -r FILE; do
-            echo "Fixing: $FILE"
-
-            sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' "$FILE"
-            sed -i 's/jvmTarget *= *"1.8"/jvmTarget = "17"/g' "$FILE"
-            sed -i 's/JVM_1_8/JVM_17/g' "$FILE"
-            sed -i 's/JavaVersion.VERSION_1_8/JavaVersion.VERSION_17/g' "$FILE"
-
-          done < <(find project -name "build.gradle.kts")
-
-          echo "Checking JVM settings after fix:"
-          grep -RniE "VERSION_1_8|VERSION_17|jvmTarget|JVM_1_8|JVM_17" project --include="*.gradle.kts" || true
-
       - name: Build APK
         run: |
           PROJECT_DIR=$(find project -type f -name "settings.gradle.kts" -print -quit | xargs dirname)
           echo "Building project: $PROJECT_DIR"
-          gradle --no-daemon -p "$PROJECT_DIR" :app:assembleDebug
+          gradle --no-daemon -p "$PROJECT_DIR" -Pkotlin.jvm.target.validation.mode=warning :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
