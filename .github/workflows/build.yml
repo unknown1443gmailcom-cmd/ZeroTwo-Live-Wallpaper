@@ -2,7 +2,7 @@ name: Build Zero Two Live Wallpaper APK
 
 on:
   workflow_dispatch:
-
+  push:
 permissions:
   contents: read
 
